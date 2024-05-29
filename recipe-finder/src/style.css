@@ -1,0 +1,26 @@
+body {
+  background: #101010;
+  margin: 0;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+
+}
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #59eab291;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #202020;
+}
