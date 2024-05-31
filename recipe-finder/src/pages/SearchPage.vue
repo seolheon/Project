@@ -1,14 +1,29 @@
 <template>
   <div class="search-page">
-    <h1>Поиск рецептов по ингредиентам</h1>
+    <h1>Recipes by Ingredients</h1>
     <div class="input-container">
       <el-input
         v-model="ingredientInput"
-        placeholder="Введите ингредиенты"
+        placeholder="Ingredients here"
         @input="handleInput"
         class="ingredient-input"
       ></el-input>
     </div>
+    
+    <div class="selected-ingredients" v-if="selectedIngredients.length > 0">
+      <el-tag
+        v-for="(ingredient, index) in selectedIngredients"
+        :key="index"
+        closable
+        @close="removeIngredient(index)"
+        class="selected-tag"
+      >
+        {{ ingredient.name }}
+      </el-tag>
+    </div>
+
+    <el-button type="primary" @click="handleClick" class="search-button">Find recipe</el-button>
+
     <div v-if="flag && ingredientSuggestions && ingredientSuggestions.length" class="ingredient-cards">
       <div
         v-for="ingredient in ingredientSuggestions"
@@ -23,26 +38,26 @@
         <p>{{ ingredient.name }}</p>
       </div>
     </div>
-    <el-button type="primary" @click="handleClick" class="search-button">Искать</el-button>
-    <div class="selected-ingredients" v-if="selectedIngredients.length > 0">
-      <el-tag
-        v-for="(ingredient, index) in selectedIngredients"
-        :key="index"
-        closable
-        @close="removeIngredient(index)"
-        class="selected-tag"
+    <div v-if="!flag && recipes && recipes.length" class="recipe-grid">
+      <router-link
+        v-for="recipe in recipes"
+        :key="recipe.id"
+        :to="'/recipe/' + recipe.id"
+        class="recipe-card-link"
       >
-        {{ ingredient.name }}
-      </el-tag>
-    </div>
-    <div class="recipe-grid" v-if="!flag && recipes && recipes.length">
-      <router-link :to="'/recipe/' + recipe.id" class="recipe-card" v-for="recipe in recipes" :key="recipe.id">
-        <img :src="recipe.image" alt="Recipe Image" class="recipe-image" />
-        <h3>{{ recipe.title }}</h3>
+        <el-card class="recipe-card">
+          <div class="recipe-image-wrapper">
+            <img :src="recipe.image" alt="Recipe Image" class="recipe-image"/>
+          </div>
+          <div class="recipe-info">
+            <h3>{{ recipe.title }}</h3>
+          </div>
+        </el-card>
       </router-link>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
@@ -59,12 +74,19 @@ const selectedIngredients = ref<Ingredient[]>([]);
 
 const ingredientSuggestions = computed(() => recipeStore.ingredientSuggestions);
 
-const flag = ref(true)
+const flag = ref(true);
 
 const fetchSuggestions = async () => {
   if (ingredientInput.value.trim()) {
     try {
       await recipeStore.getIngredientSuggestions(ingredientInput.value.trim());
+      console.log('Fetched ingredient suggestions:', recipeStore.ingredientSuggestions);
+      selectedIngredients.value = selectedIngredients.value.map(selected => {
+        const matchingSuggestion = recipeStore.ingredientSuggestions.find(
+          suggestion => suggestion.name === selected.name
+        );
+        return matchingSuggestion || selected;
+      });
     } catch (error) {
       console.error('Error fetching ingredient suggestions:', error);
     }
@@ -76,15 +98,16 @@ const fetchSuggestions = async () => {
 const debouncedFetchSuggestions = debounce(fetchSuggestions, 500);
 
 const toggleSelection = (ingredient: Ingredient) => {
-  if (!isSelected(ingredient)) {
-    selectedIngredients.value.push(ingredient)
+  const index = selectedIngredients.value.findIndex(item => item.name === ingredient.name);
+  if (index === -1) {
+    selectedIngredients.value.push(ingredient);
   } else {
-    removeIngredient(selectedIngredients.value.findIndex(item => item === ingredient))
+    selectedIngredients.value.splice(index, 1);
   }
 };
 
 const isSelected = (ingredient: Ingredient) => {
-  return selectedIngredients.value.some(item => item === ingredient);
+  return selectedIngredients.value.some(item => item.name === ingredient.name);
 };
 
 const removeIngredient = (index: number) => {
@@ -117,12 +140,14 @@ const searchRecipes = async () => {
 
 <style scoped>
 .search-page {
-  max-width: 800px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #202020;
+  color: #fff;
+  max-width: 80%;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Montserrat', sans-serif;
-  background-color: #282828;
-  color: #fff;
+  border-radius: 0px 0px 10px 10px;
+
 }
 
 h1 {
@@ -177,6 +202,17 @@ h1 {
 .search-button {
   width: 100%;
   margin-bottom: 20px;
+  background-color: #71d1b1;
+  color:#282828;
+  border: 1px solid #282828;
+}
+
+.search-button:hover {
+  width: 100%;
+  margin-bottom: 20px;
+  background-color: #282828;
+  color: #71d1b1;
+  border: 1px solid #71d1b1;
 }
 
 .selected-ingredients {
@@ -190,24 +226,72 @@ h1 {
 
 .recipe-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.recipe-card-link {
+  text-decoration: none;
 }
 
 .recipe-card {
-  border: 1px solid #71d1b1;
-  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  border: 1px solid #454545;
+  border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s;
+  background-color: #282828;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .recipe-card:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.recipe-image-wrapper {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid #454545;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px 8px 0 0; 
 }
 
 .recipe-image {
   width: 100%;
-  height: 150px;
+  height: 100%;
   object-fit: cover;
+}
+
+.recipe-info {
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  height: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7); 
+}
+
+.recipe-info h3 {
+  margin: 0;
+  font-size: 1em;
+  color: #fff;
+  word-wrap: break-word;
 }
 </style>

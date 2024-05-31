@@ -95,7 +95,7 @@ const handleScroll = () => {
   max-width: 80%;
   margin: 0 auto;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 0px 0px 10px 10px;
 }
 
 h1 {
@@ -151,10 +151,8 @@ h1 {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 8px 8px 0 0; 
+  border-radius: 10px;
 }
-
-
 
 .recipe-image {
   width: 100%;

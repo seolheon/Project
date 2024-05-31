@@ -65,7 +65,6 @@ const goBack = () => {
 }
 
 .el-menu--horizontal>.el-menu-item.is-active {
-  color: #549982;
   border-bottom: 2px solid #71d1b1;
 }
 
@@ -79,6 +78,5 @@ const goBack = () => {
 
 .nav-link:hover {
   color: #549982;
-  border-bottom: 2px solid #71d1b1;
 }
 </style>

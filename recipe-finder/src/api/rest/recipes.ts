@@ -51,7 +51,7 @@ export const fetchRecipesByIngredients = (ingredients: string[], number: number)
 export const fetchIngredientSuggestions = (query: string) => makeRequest({
   url: 'https://api.spoonacular.com/food/ingredients/autocomplete',
   method: 'GET',
-  params: { query, number: 10, apiKey: API_KEY }
+  params: { query, number: 20, apiKey: API_KEY }
 }).then(response => {
   console.log('API response for fetchIngredientSuggestions:', response);
   return response;

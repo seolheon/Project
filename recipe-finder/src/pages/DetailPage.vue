@@ -109,7 +109,6 @@ onMounted(async () => {
 }
 
 .step-content {
-
   text-align: left;
 }
 
