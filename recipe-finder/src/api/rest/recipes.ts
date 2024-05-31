@@ -1,9 +1,9 @@
 import makeRequest from '../httpClient';
 
 // const API_KEY = '3cc8f688adf7459daed0e7bd772c0e98';
-// const API_KEY = 'd907bb03583247648ef78636ae60e7ba';
+const API_KEY = 'd907bb03583247648ef78636ae60e7ba';
 // const API_KEY = 'da04600be815433b982844056e269dad';
-const API_KEY = '0454a81dfb494cada462b81bb10598c0';
+// const API_KEY = '0454a81dfb494cada462b81bb10598c0';
 
 export const fetchRecipes = (params: { [key: string]: any }) => makeRequest({
   url: 'https://api.spoonacular.com/recipes/complexSearch',
